@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student API</title>
+</head>
+<body>
+    <h1>Add Student</h1>
+    <form id="addStudentForm">
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" required><br><br>
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" required><br><br>
+        <label for="middleName">Middle Name:</label>
+        <input type="text" id="middleName" required><br><br>
+        <label for="dateOfBirth">Date of Birth:</label>
+        <input type="date" id="dateOfBirth" required><br><br>
+        <label for="groupName">Group Name:</label>
+        <input type="text" id="groupName" required><br><br>
+        <label for="uniqueNumber">Unique Number:</label>
+        <input type="text" id="uniqueNumber" required><br><br>
+        <button type="submit">Add Student</button>
+    </form>
+
+    <h1>Delete Student</h1>
+    <form id="deleteStudentForm">
+        <label for="uniqueNumberToDelete">Unique Number:</label>
+        <input type="text" id="uniqueNumberToDelete" required><br><br>
+        <button type="submit">Delete Student</button>
+    </form>
+
+    <h1>List of Students</h1>
+    <ul style="list-style: none;" id="studentList"></ul>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function renderStudent(Name, MiddleName, Birthday, Group, UniqId){
+            nTag = "<p>" + Name + "</p>"
+            mnTag = "<p style='color:#ccc'>" + MiddleName + "</p>"
+            bTag = "<b>" + Birthday + "</b> <br>"
+            educ = "<span>" + Group + ':<b>' + UniqId + ' <b/>' + "</span>"
+            return('<div style="border: 1px solid red; margin: 10px">' + nTag + mnTag + bTag + educ + '</div>')
+        }
+
+        function renderStudentList() {
+            $.ajax({
+                url: "http://localhost:9923/students",
+                type: "GET",
+                success: function(response) {
+                    response = JSON.parse(response)
+                    var studentList = $("#studentList");
+                    studentList.empty();
+
+                    $.each(response, function(index, studentInfo) {
+                        studentList.append("<li>" + renderStudent(studentInfo.Name, studentInfo.MiddleName, studentInfo.Birthday, studentInfo.Group, studentInfo.UniqueNumber) + "</li>");
+                    });
+                },
+                error: function(xhr, status, error) {
+                    alert("Error: " + error);
+                }
+            });
+        }  
+        $("#addStudentForm").submit(function(event) {
+            event.preventDefault();
+
+            var firstName = $("#firstName").val();
+            var lastName = $("#lastName").val();
+            var middleName = $("#middleName").val();
+            var dateOfBirth = $("#dateOfBirth").val();
+            var groupName = $("#groupName").val();
+            var uniqueNumber = $("#uniqueNumber").val();
+
+            $.ajax({
+                url: "http://localhost:9923/students",
+                type: "POST",
+                data: {
+                    first_name: firstName,
+                    last_name: lastName,
+                    middle_name: middleName,
+                    date_of_birth: dateOfBirth,
+                    group_id: groupName,
+                    unique_id: uniqueNumber
+                },
+                success: function(response) {
+                    $("#addStudentForm")[0].reset();
+                    renderStudentList();
+                },
+                error: function(xhr, status, error) {
+                }
+            });
+        });
+        $("#deleteStudentForm").submit(function(event) {
+            event.preventDefault();
+
+            var uniqueNumberToDelete = $("#uniqueNumberToDelete").val();
+
+            $.ajax({
+                url: "http://localhost:9923/students/" + uniqueNumberToDelete,
+                type: "DELETE",
+                success: function(response) {
+                    $("#deleteStudentForm")[0].reset();
+                    renderStudentList();
+                },
+                error: function(xhr, status, error) {
+                    alert("Error: " + error);
+                }
+            });
+        });
+        $.ajax({
+            url: "http://localhost:9923/students",
+            type: "GET",
+            success: function(response) {
+                var studentList = $("#studentList");
+                response = JSON.parse(response)
+                console.log(response)
+                $.each(response, function(index, studentInfo) {
+                    studentList.append("<li>" + studentInfo + "</li>");
+                });
+            },
+            error: function(xhr, status, error) {
+                alert("Error: " + error);
+            }
+        });
+        renderStudentList();
+    </script>
+</body>
+</html>
