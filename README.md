@@ -15,5 +15,5 @@
 `sudo apt install default-jre`<br>
 `sudo apt install default-jdk`<br><br>
 Теперь можно запускать сервер, он будет находиться на localhost:9923<br>
-`java -jar students-api-server.jar.jar`<br><br>
+`java -jar students-api-server.jar`<br><br>
 Сервер запущен, теперь можно открыть index.html файл и проверить работоспособность API 
